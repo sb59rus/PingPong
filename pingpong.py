@@ -34,19 +34,26 @@ class Player2(GameSprite):
 
 class Ball(GameSprite):
     def update(self):
+        global score1
+        global score2
         self.rect.x+=self.speed_x
         self.rect.y+=self.speed_y
         if self.rect.y<1 or self.rect.y>549:
             self.speed_y*=-1
         if sprite.collide_rect(ball, raker1) or sprite.collide_rect(ball, raker2):
             self.speed_x*=-1
-        if self.rect.x<1 or self.rect.x>1199:
+        if self.rect.x<1:
+            score2+=1
+            self.rect.x = 575
+            self.rect.y = 275
+        if self.rect.x>1199:
+            score1+=1
             self.rect.x = 575
             self.rect.y = 275
 
 #Игровая сцена:
-bg = (randint(0,255), randint(0,255), randint(0,255))
-score_color = (randint(0,255), randint(0,255), randint(0,255))
+bg = (194, 194, 214)
+score_color = (51, 51, 51)
 window = display.set_mode((1200, 600))
 display.set_caption("PingPong")
 window.fill(bg)
@@ -57,6 +64,9 @@ run = True
 clock = time.Clock()
 raket_image = 'raket.png'
 ball_image = 'ball.png'
+score1 = 0
+score2 = 0
+text_size = 250
 
 #создание спрайтов
 raker1 = Player1(raket_image, 15, 150, 10, 250, 5)
@@ -64,17 +74,12 @@ raker2 = Player2(raket_image, 15, 150, 1175, 250, 5)
 ball = Ball(ball_image, 50, 50, 575, 275, 7)
 
 #музыка
-'''mixer.init()
-mixer.music.load('space.ogg')
+mixer.init()
+mixer.music.load('Minimal.ogg')
 mixer.music.play()
-shot = mixer.Sound('fire.ogg')'''
 
 #шрифты
 font.init()
-player1_score = font.SysFont('Arial', 250).render('0', 1, score_color)
-player2_score = font.SysFont('Arial', 250).render('0', 1, score_color)
-'''win = font.SysFont('Arial', 70).render('YOU WIN', 1, (0,255,0))
-lose = font.SysFont('Arial', 70).render('YOU WIN', 1, (0,255,0))'''
 
 while run:
     for e in event.get():
@@ -82,8 +87,11 @@ while run:
             run = False
 
     window.fill(bg)
+
+    player1_score = font.SysFont('Arial', text_size).render(str(score1), 1, score_color)
+    player2_score = font.SysFont('Arial', text_size).render(str(score2), 1, score_color)
     window.blit(player1_score,(100,175))
-    window.blit(player1_score,(975,175))
+    window.blit(player2_score,(975,175))
 
     if not(finish):
         raker1.update()
@@ -93,5 +101,15 @@ while run:
         ball.update()
         ball.reset()
 
+        if score1 == 10:
+            finish = True
+            text_size = 70
+            score1 = 'WIN'
+            score2 = 'LOSE'
+        if score2 == 10:
+            finish = True
+            text_size = 70
+            score1 = 'LOSE'
+            score2 = 'WIN'
     display.update()
     clock.tick(60)
